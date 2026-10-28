@@ -944,23 +944,8 @@ async function changeCat(id, v) {
   t.ai = false;
   const { error } = await sb.from("transactions").update({ category: t.cat, manual: true, ai: false }).eq("id", id);
   if (error) { toast("Não consegui salvar a categoria."); return; }
-  let n = 0;
-  if (v) {
-    const key = merchantKey(t.desc);
-    if (key) {
-      S.rules[key] = v;
-      saveSettings();
-      const { data } = await sb.from("transactions").select("id, description, category").eq("user_id", user.id).eq("manual", false).limit(5000);
-      const ids = (data || []).filter((o) => o.id !== id && o.category !== v && merchantKey(o.description) === key).map((o) => o.id);
-      for (let i = 0; i < ids.length; i += 300) {
-        const { error: e2 } = await sb.from("transactions").update({ category: v, ai: false }).in("id", ids.slice(i, i + 300));
-        if (!e2) n += Math.min(300, ids.length - i);
-      }
-      if (n) for (const k in TX) for (const o of TX[k]) if (ids.includes(o.id)) { o.cat = v; o.ai = false; }
-    }
-  }
   render();
-  if (v) toast(n ? `Categoria salva. ${n} ${n === 1 ? "gasto parecido também foi atualizado" : "gastos parecidos também foram atualizados"}.` : "Categoria salva. Gastos parecidos vão usar essa categoria.");
+  if (v) toast("Categoria salva.");
 }
 
 function openAdd() {

@@ -3,6 +3,9 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY, PLUGGY_CONNECT_SRC, PLUGGY_SANDBOX } f
 
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+const topBar = document.querySelector(".top");
+if (topBar) new ResizeObserver(() => document.documentElement.style.setProperty("--top-h", topBar.offsetHeight + "px")).observe(topBar);
+
 const CATS = [
   { id: "mercado", name: "Mercado", color: "#4ADE80" },
   { id: "restaurantes", name: "Alimentação", color: "#FB923C" },

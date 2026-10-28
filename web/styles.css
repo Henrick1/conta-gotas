@@ -265,7 +265,7 @@ dialog h2{margin-bottom:16px}
 .bank-pending .muted{margin:2px 0 0}
 @keyframes spin{to{transform:rotate(360deg)}}
 .goals-layout{display:grid;gap:24px;grid-template-columns:1fr;align-items:start}
-@media (min-width:900px){.goals-layout{grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr)}.goal-chart{position:sticky;top:16px}}
+@media (min-width:900px){.goals-layout{grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr)}.goal-chart{position:sticky;top:calc(var(--top-h,0px) + 16px)}}
 .goals2{display:flex;flex-direction:column;gap:10px}
 .goal2{display:grid;grid-template-columns:12px minmax(0,1fr) 120px;gap:8px 12px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--bg)}
 .goal2 input[data-goal]{text-align:right;background:var(--surface)}

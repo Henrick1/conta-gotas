@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conta-gotas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><svg class="bgwave bw1" viewBox="0 0 2880 200" preserveAspectRatio="none"><path d="M0 100 C 240 40 480 40 720 100 S 1200 160 1440 100 C 1680 40 1920 40 2160 100 S 2640 160 2880 100 V200 H0 Z"/></svg><svg class="bgwave bw2" viewBox="0 0 2880 200" preserveAspectRatio="none"><path d="M0 100 C 240 40 480 40 720 100 S 1200 160 1440 100 C 1680 40 1920 40 2160 100 S 2640 160 2880 100 V200 H0 Z"/></svg><svg class="bgwave bw3" viewBox="0 0 2880 200" preserveAspectRatio="none"><path d="M0 100 C 240 40 480 40 720 100 S 1200 160 1440 100 C 1680 40 1920 40 2160 100 S 2640 160 2880 100 V200 H0 Z"/></svg></div>
+<header class="top auth" id="top">
+<div class="top-in">
+<div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5C9 7 5.5 10.6 5.5 14.6a6.5 6.5 0 0 0 13 0C18.5 10.6 15 7 12 2.5z" fill="#8C8EFF"/><path d="M5.6 15.2a6.5 6.5 0 0 0 12.8 0c-2 1.2-4.2-.6-6.4.2-2.2.8-4.4 1-6.4-.2z" fill="#38BDF8"/></svg>Conta-gotas</div>
+<div class="month">
+<button class="icon-btn" data-action="prev" aria-label="Mês anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+<span class="month-l" id="monthLabel"></span>
+<button class="icon-btn" data-action="next" aria-label="Próximo mês"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>
+</div>
+</div>
+<nav class="tabs" role="tablist" aria-label="Seções">
+<button role="tab" data-action="tab" data-tab="resumo">Resumo</button>
+<button role="tab" data-action="tab" data-tab="faturas">Faturas</button>
+<button role="tab" data-action="tab" data-tab="investimentos">Investimentos</button>
+<button role="tab" data-action="tab" data-tab="objetivos">Objetivos</button>
+<button role="tab" data-action="tab" data-tab="metas">Metas</button>
+<button role="tab" data-action="tab" data-tab="lancamentos">Lançamentos</button>
+<button role="tab" data-action="tab" data-tab="ajustes">Ajustes</button>
+</nav>
+</header>
+<main id="view"></main>
+<input type="file" id="file" accept=".ofx,.csv,.txt" hidden>
+<dialog id="csvDlg">
+<h2>Que arquivo é esse?</h2>
+<label class="choice"><input type="radio" name="kind" value="conta" checked><span>Extrato da conta<small>Saídas aparecem com valor negativo.</small></span></label>
+<label class="choice"><input type="radio" name="kind" value="cartao"><span>Fatura do cartão<small>Compras aparecem com valor positivo.</small></span></label>
+<div class="row end"><button class="btn" data-action="close-dlg">Cancelar</button><button class="btn primary" data-action="csv-confirm">Importar</button></div>
+</dialog>
+<dialog id="addDlg">
+<h2>Adicionar gasto</h2>
+<label class="field"><span>Descrição</span><input id="aDesc" autocomplete="off"></label>
+<label class="field"><span>Valor</span><input id="aAmt" inputmode="decimal" placeholder="0,00"></label>
+<label class="field"><span>Data</span><input id="aDate" type="date"></label>
+<label class="field"><span>Categoria</span><select id="aCat"></select></label>
+<p class="dlg-err" id="aErr" role="alert"></p>
+<div class="row end"><button class="btn" data-action="close-dlg">Cancelar</button><button class="btn primary" data-action="add-save">Adicionar gasto</button></div>
+</dialog>
+<dialog id="abatDlg">
+<h2 id="oTitle">Novo abatimento</h2>
+<label class="field"><span id="oPersonLabel">Pessoa (opcional)</span><input id="oPerson" autocomplete="off" placeholder="Nome"></label>
+<label class="field"><span id="oAmtLabel">Valor recebido</span><input id="oAmt" inputmode="decimal" placeholder="0,00" autocomplete="off"></label>
+<label class="field"><span id="oDateLabel">Data do recebimento</span><input id="oDate" type="date"></label>
+<label class="field"><span>Descrição (opcional)</span><input id="oNote" autocomplete="off" placeholder="Quem pagou ou referência"></label>
+<label class="field"><span id="oLinesLabel">Lançamentos abatidos</span><input id="oSearch" autocomplete="off" placeholder="Buscar lançamento"></label>
+<ul class="o-list" id="oList"></ul>
+<p class="o-sum" id="oSum"></p>
+<p class="dlg-err" id="oErr" role="alert"></p>
+<div class="row end"><button class="btn" data-action="close-dlg">Cancelar</button><button class="btn primary" id="oSave" data-action="abat-save">Salvar abatimento</button></div>
+</dialog>
+<dialog id="objDlg">
+<h2 id="obTitle">Novo objetivo</h2>
+<label class="field"><span>Nome</span><input id="obName" autocomplete="off" placeholder="Ex.: Reserva de emergência"></label>
+<label class="field"><span>Valor-alvo</span><input id="obTarget" inputmode="decimal" placeholder="0,00"></label>
+<label class="field"><span>Prazo (opcional)</span><input id="obDeadline" type="month"></label>
+<label class="field"><span>Já guardado fora dos investimentos</span><input id="obManual" inputmode="decimal" placeholder="0,00"></label>
+<div class="field"><span>Investimentos que contam para este objetivo</span><ul class="o-list" id="obInvList"></ul></div>
+<p class="dlg-err" id="obErr" role="alert"></p>
+<div class="row end"><button class="btn" data-action="close-dlg">Cancelar</button><button class="btn primary" data-action="obj-save">Salvar objetivo</button></div>
+</dialog>
+<dialog id="invDlg"><div id="invBody"></div></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

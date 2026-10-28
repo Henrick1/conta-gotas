@@ -1,0 +1,52 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate config.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          PLUGGY_CONNECT_SRC: ${{ vars.PLUGGY_CONNECT_SRC || 'https://cdn.pluggy.ai/pluggy-connect/latest/pluggy-connect.js' }}
+          PLUGGY_SANDBOX: ${{ vars.PLUGGY_SANDBOX || 'true' }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::Configure os secrets SUPABASE_URL e SUPABASE_ANON_KEY no repositório."
+            exit 1
+          fi
+          {
+            printf 'export const SUPABASE_URL = "%s";\n' "$SUPABASE_URL"
+            printf 'export const SUPABASE_ANON_KEY = "%s";\n' "$SUPABASE_ANON_KEY"
+            printf 'export const PLUGGY_CONNECT_SRC = "%s";\n' "$PLUGGY_CONNECT_SRC"
+            printf 'export const PLUGGY_SANDBOX = %s;\n' "$PLUGGY_SANDBOX"
+          } > web/config.js
+          rm -f web/config.example.js
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

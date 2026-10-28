@@ -190,11 +190,14 @@ async function refresh(force, doRender = true) {
 }
 
 function scheduleReload() {
+  if (syncing) return;
   clearTimeout(reloadT);
   reloadT = setTimeout(async () => {
+    if (syncing) return;
     for (const k in TX) delete TX[k];
     await loadItems();
-    await refresh(true, tab !== "ajustes");
+    await refresh(true, false);
+    if (tab !== "ajustes") render(true);
   }, 900);
 }
 
@@ -794,7 +797,7 @@ function viewLoading() {
   return '<div class="loading" role="status" aria-live="polite"><span class="spinner big" aria-hidden="true"></span><p class="muted">Carregando seus dados...</p></div>';
 }
 
-function render() {
+function render(quiet) {
   const top = $("#top");
   top.classList.toggle("auth", !user);
   const v = $("#view");
@@ -803,18 +806,27 @@ function render() {
   $("#monthLabel").textContent = monthLabel(cur);
   document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
   if (loadingData) { v.innerHTML = viewLoading(); return; }
+  const y = window.scrollY;
+  if (quiet) v.classList.add("still");
   v.innerHTML = tab === "resumo" ? viewResumo() : tab === "metas" ? viewMetas() : tab === "faturas" ? viewFaturas() : tab === "investimentos" ? viewInvest() : tab === "objetivos" ? viewObjetivos() : tab === "lancamentos" ? viewLanc() : viewAjustes();
-  animateIn();
+  if (quiet) {
+    applyFinal();
+    window.scrollTo(0, y);
+    void v.offsetWidth;
+    requestAnimationFrame(() => v.classList.remove("still"));
+  } else animateIn();
   if (tab === "ajustes") requestAnimationFrame(() => requestAnimationFrame(paintGoalChart));
 }
 
+function applyFinal() {
+  document.querySelectorAll(".liquid[data-top]").forEach((g) => { g.style.transform = `translateY(${g.dataset.top}px)`; });
+  document.querySelectorAll("[data-dash]").forEach((c) => { c.style.strokeDasharray = c.dataset.dash; });
+  document.querySelectorAll("[data-h]").forEach((b) => { b.style.height = b.dataset.h + "%"; });
+  document.querySelectorAll("[data-w]").forEach((b) => { b.style.width = b.dataset.w + "%"; });
+}
+
 function animateIn() {
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    document.querySelectorAll(".liquid[data-top]").forEach((g) => { g.style.transform = `translateY(${g.dataset.top}px)`; });
-    document.querySelectorAll("[data-dash]").forEach((c) => { c.style.strokeDasharray = c.dataset.dash; });
-    document.querySelectorAll("[data-h]").forEach((b) => { b.style.height = b.dataset.h + "%"; });
-    document.querySelectorAll("[data-w]").forEach((b) => { b.style.width = b.dataset.w + "%"; });
-  }));
+  requestAnimationFrame(() => requestAnimationFrame(applyFinal));
 }
 
 function setTab(t, keepFilter) {
@@ -827,6 +839,8 @@ function setTab(t, keepFilter) {
   v.classList.remove("view-in");
   void v.offsetWidth;
   v.classList.add("view-in");
+  clearTimeout(setTab.t);
+  setTab.t = setTimeout(() => v.classList.remove("view-in"), 1100);
 }
 
 function decode(buf) { try { return new TextDecoder("utf-8", { fatal: true }).decode(buf); } catch (e) { return new TextDecoder("windows-1252").decode(buf); } }
@@ -1114,7 +1128,8 @@ async function connectBank(itemId) {
 async function afterSync(r) {
   for (const k in TX) delete TX[k];
   await loadItems();
-  await refresh(true);
+  await refresh(true, false);
+  render(true);
   const n = (r && r.inserted) || 0;
   toast(n ? `${n} ${n === 1 ? "gasto novo" : "gastos novos"} dos seus bancos.` : "Tudo em dia. Nenhum gasto novo.");
 }
@@ -1122,7 +1137,9 @@ async function afterSync(r) {
 async function syncNow() {
   if (syncing) return;
   syncing = true;
-  render();
+  clearTimeout(reloadT);
+  render(true);
+  toast("Sincronizando seus bancos...", true);
   try {
     const r = await api("sync");
     await afterSync(r);
@@ -1131,7 +1148,7 @@ async function syncNow() {
     toast("Não consegui sincronizar: " + e.message);
   } finally {
     syncing = false;
-    render();
+    render(true);
   }
 }
 
@@ -1175,6 +1192,7 @@ async function setUser(u) {
     .on("postgres_changes", { event: "*", schema: "public", table: "pluggy_accounts", filter: "user_id=eq." + user.id }, scheduleReload)
     .on("postgres_changes", { event: "*", schema: "public", table: "pluggy_bills", filter: "user_id=eq." + user.id }, scheduleReload)
     .subscribe();
+  if (items.length) syncNow();
 }
 
 document.addEventListener("click", async (e) => {

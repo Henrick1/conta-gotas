@@ -305,3 +305,5 @@ dialog h2{margin-bottom:16px}
 .obj-card .stack{margin-top:10px}
 .obj-links{margin-top:10px}
 .pos{color:#4ADE80}
+.still,.still *{transition:none!important}
+.still>*{animation:none!important}

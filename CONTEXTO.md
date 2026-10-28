@@ -6,7 +6,7 @@ App pessoal de controle financeiro. Os gastos chegam dos bancos via Open Finance
 
 - Código sem comentários e sem emojis, a menos que o usuário peça.
 - Textos da interface em português do Brasil. Nomes de código em inglês.
-- Commits em inglês, no formato conventional commits. Nunca commitar na `main`, sempre em branch e PR.
+- Commits em inglês, no formato conventional commits. Projeto pessoal: commits direto na `main`.
 - Preferir mudanças pequenas e pontuais. Não reestruturar o que funciona sem pedido.
 - Nunca colocar secrets em arquivos do repositório. `web/config.js` está no `.gitignore`; localmente é copiado de `web/config.example.js`, e no deploy é gerado pelo workflow a partir dos secrets `SUPABASE_URL` e `SUPABASE_ANON_KEY` do GitHub.
 - O usuário (Henrique) responde em português, costuma mandar prints e dá feedback visual direto. Prefere resultado funcionando a explicações longas.

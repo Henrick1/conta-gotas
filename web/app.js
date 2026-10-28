@@ -113,7 +113,7 @@ let reloadT = null;
 function toast(msg, loading) {
   const t = $("#toast");
   t.textContent = msg;
-  t.classList.toggle("loading", !!loading);
+  t.classList.toggle("busy", !!loading);
   t.classList.add("show");
   clearTimeout(toast.t);
   if (!loading) toast.t = setTimeout(() => t.classList.remove("show"), 4200);

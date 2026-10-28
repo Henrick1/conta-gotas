@@ -258,8 +258,8 @@ dialog h2{margin-bottom:16px}
 .cv.tilting{transition:transform .08s linear,box-shadow .3s ease;box-shadow:0 18px 34px rgba(0,0,0,.5)}
 .cv::before{background:radial-gradient(120% 90% at var(--mx,100%) var(--my,0%),rgba(255,255,255,.26),transparent 55%)}
 .spinner{display:inline-block;width:18px;height:18px;border-radius:50%;border:2.5px solid color-mix(in srgb,currentColor 25%,transparent);border-top-color:currentColor;animation:spin .8s linear infinite;flex:none}
-.toast.loading{display:flex;align-items:center;gap:10px}
-.toast.loading::before{content:"";width:16px;height:16px;border-radius:50%;border:2.5px solid color-mix(in srgb,var(--bg) 25%,transparent);border-top-color:var(--bg);animation:spin .8s linear infinite;flex:none}
+.toast.busy{display:flex;align-items:center;gap:10px}
+.toast.busy::before{content:"";width:16px;height:16px;border-radius:50%;border:2.5px solid color-mix(in srgb,var(--bg) 25%,transparent);border-top-color:var(--bg);animation:spin .8s linear infinite;flex:none}
 .bank-pending{justify-content:flex-start!important;gap:14px!important;color:var(--accent)}
 .bank-pending .bank-name-static{margin:0;font-weight:600;color:var(--text)}
 .bank-pending .muted{margin:2px 0 0}
